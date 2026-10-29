@@ -1,114 +1,238 @@
-$(document).ready(function () {
-  $(window).scroll(function () {
-    // sticky navbar on scroll script
-    if (this.scrollY > 20) {
-      $(".navbar").addClass("sticky");
-    } else {
-      $(".navbar").removeClass("sticky");
+/**
+ * Nandini Sisodiya - Portfolio Scripts
+ * High-performance Vanilla JavaScript (ES6+)
+ */
+
+document.addEventListener("DOMContentLoaded", () => {
+    // 1. Dynamic Year in Footer
+    const yearEl = document.getElementById("currentYear");
+    if (yearEl) {
+        yearEl.textContent = new Date().getFullYear();
     }
 
-    // scroll-up button show/hide script
-    if (this.scrollY > 500) {
-      $(".scroll-up-btn").addClass("show");
-    } else {
-      $(".scroll-up-btn").removeClass("show");
-    }
-  });
+    // 2. Navbar Scroll Behavior & Scroll-Progress Bar
+    const navbar = document.getElementById("navbar");
+    const progressBar = document.getElementById("scroll-progress");
+    const scrollUpBtn = document.getElementById("scrollUpBtn");
 
-  // slide-up script
-  $(".scroll-up-btn").click(function () {
-    $("html").animate({ scrollTop: 0 });
-    // removing smooth scroll on slide-up button click
-    $("html").css("scrollBehavior", "auto");
-  });
+    const handleScroll = () => {
+        const scrollTop = window.scrollY || document.documentElement.scrollTop;
+        const docHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        const scrollPercent = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
 
-  $(".navbar .menu li a").click(function () {
-    // applying again smooth scroll on menu items click
-    $("html").css("scrollBehavior", "smooth");
-  });
+        // Update progress bar
+        if (progressBar) {
+            progressBar.style.width = `${scrollPercent}%`;
+        }
 
-  // toggle menu/navbar script
-  $(".menu-btn").click(function () {
-    $(".navbar .menu").toggleClass("active");
-    $(".menu-btn i").toggleClass("active");
-  });
+        // Sticky navbar styling
+        if (scrollTop > 30) {
+            navbar.classList.add("scrolled");
+        } else {
+            navbar.classList.remove("scrolled");
+        }
 
-  // typing text animation script
-  var typed = new Typed(".typing", {
-    strings: ["Developer", "Designer", "Programmer", "Tech Enthusiast"],
-    typeSpeed: 100,
-    backSpeed: 60,
-    loop: true,
-  });
-
-  var typed = new Typed(".typing-2", {
-    strings: [
-      "Frontend Developer",
-      "Backend Developer",
-      "Web Developer",
-      "Python Programmer",
-      "React.js Enthusiast",
-    ],
-    typeSpeed: 100,
-    backSpeed: 60,
-    loop: true,
-  });
-
-  // owl carousel script
-  $(".carousel").owlCarousel({
-    margin: 20,
-    loop: true,
-    autoplay: true,
-    autoplayTimeOut: 2000,
-    autoplayHoverPause: true,
-    responsive: {
-      0: {
-        items: 1,
-        nav: false,
-      },
-      600: {
-        items: 2,
-        nav: false,
-      },
-      1000: {
-        items: 3,
-        nav: false,
-      },
-    },
-  });
-});
-
-document
-  .getElementById("contactForm")
-  .addEventListener("submit", function (event) {
-    event.preventDefault(); // Prevent default form submission
-
-    const formData = {
-      name: document.getElementById("name").value,
-      email: document.getElementById("email").value,
-      message: document.getElementById("message").value,
+        // Back to top button visibility
+        if (scrollTop > 450) {
+            scrollUpBtn.classList.add("show");
+        } else {
+            scrollUpBtn.classList.remove("show");
+        }
     };
 
-    fetch("https://formspree.io/f/xrbpggnw", {
-      // Replace with your actual Formspree form ID
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify(formData),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.ok) {
-          alert("Message sent successfully!");
-          document.getElementById("contactForm").reset(); // Reset form
-        } else {
-          alert("Error sending message. Please try again.");
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+
+    // 3. Smooth Mobile Drawer Menu
+    const menuToggle = document.getElementById("menuToggle");
+    const navMenu = document.getElementById("navMenu");
+    const navLinks = document.querySelectorAll(".nav-link");
+
+    if (menuToggle && navMenu) {
+        menuToggle.addEventListener("click", () => {
+            menuToggle.classList.toggle("active");
+            navMenu.classList.toggle("open");
+            document.body.style.overflow = navMenu.classList.contains("open") ? "hidden" : "auto";
+        });
+
+        // Close drawer when a link is clicked
+        navLinks.forEach((link) => {
+            link.addEventListener("click", () => {
+                menuToggle.classList.remove("active");
+                navMenu.classList.remove("open");
+                document.body.style.overflow = "auto";
+            });
+        });
+
+        // Close drawer on resize to desktop
+        window.addEventListener("resize", () => {
+            if (window.innerWidth > 820 && navMenu.classList.contains("open")) {
+                menuToggle.classList.remove("active");
+                navMenu.classList.remove("open");
+                document.body.style.overflow = "auto";
+            }
+        });
+    }
+
+    // 4. Active Nav Item on Scroll (ScrollSpy)
+    const sections = document.querySelectorAll("section[id]");
+    const spyScroll = () => {
+        const scrollY = window.pageYOffset;
+
+        sections.forEach((current) => {
+            const sectionHeight = current.offsetHeight;
+            const sectionTop = current.offsetTop - 120;
+            const sectionId = current.getAttribute("id");
+            const navLink = document.querySelector(`.nav-links a[href*='${sectionId}']`);
+
+            if (navLink) {
+                if (scrollY > sectionTop && scrollY <= sectionTop + sectionHeight) {
+                    navLink.classList.add("active");
+                } else {
+                    navLink.classList.remove("active");
+                }
+            }
+        });
+    };
+
+    window.addEventListener("scroll", spyScroll, { passive: true });
+
+    // 5. Dynamic Typewriter Effect for Hero Subtitle
+    const typedTarget = document.getElementById("typed-text");
+    if (typedTarget) {
+        const phrases = [
+            "Software Developer",
+            "Project Associate @ NIESBUD",
+            "PHP & Laravel Developer",
+            "Python & Django Specialist",
+            "Full-Stack Web Enthusiast"
+        ];
+
+        let phraseIndex = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+        let typingSpeed = 100;
+
+        function typeLoop() {
+            const currentPhrase = phrases[phraseIndex];
+
+            if (isDeleting) {
+                typedTarget.textContent = currentPhrase.substring(0, charIndex - 1);
+                charIndex--;
+                typingSpeed = 50;
+            } else {
+                typedTarget.textContent = currentPhrase.substring(0, charIndex + 1);
+                charIndex++;
+                typingSpeed = 110;
+            }
+
+            if (!isDeleting && charIndex === currentPhrase.length) {
+                // Pause at complete phrase
+                typingSpeed = 1800;
+                isDeleting = true;
+            } else if (isDeleting && charIndex === 0) {
+                isDeleting = false;
+                phraseIndex = (phraseIndex + 1) % phrases.length;
+                typingSpeed = 400;
+            }
+
+            setTimeout(typeLoop, typingSpeed);
         }
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        alert("Something went wrong. Please try again later.");
-      });
-  });
+
+        typeLoop();
+    }
+
+    // 6. Interactive Projects Filter
+    const filterBtns = document.querySelectorAll(".filter-btn");
+    const projectCards = document.querySelectorAll(".project-card");
+
+    if (filterBtns.length > 0 && projectCards.length > 0) {
+        filterBtns.forEach((btn) => {
+            btn.addEventListener("click", () => {
+                // Update active button state
+                filterBtns.forEach((b) => b.classList.remove("active"));
+                btn.classList.add("active");
+
+                const filterValue = btn.getAttribute("data-filter");
+
+                projectCards.forEach((card) => {
+                    const cardCategory = card.getAttribute("data-category");
+
+                    if (filterValue === "all" || filterValue === cardCategory) {
+                        card.classList.remove("hide");
+                        card.style.opacity = "0";
+                        card.style.transform = "scale(0.95)";
+                        setTimeout(() => {
+                            card.style.transition = "all 0.35s ease";
+                            card.style.opacity = "1";
+                            card.style.transform = "scale(1)";
+                        }, 50);
+                    } else {
+                        card.classList.add("hide");
+                    }
+                });
+            });
+        });
+    }
+
+    // 7. Contact Form Handling via Formspree AJAX
+    const contactForm = document.getElementById("contactForm");
+    const submitBtn = document.getElementById("submitBtn");
+    const formSpinner = document.getElementById("formSpinner");
+    const formStatus = document.getElementById("formStatus");
+
+    if (contactForm && submitBtn) {
+        contactForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            // Set loading state
+            submitBtn.disabled = true;
+            submitBtn.querySelector(".btn-text").textContent = "Sending...";
+            if (formSpinner) formSpinner.style.display = "inline-block";
+            if (formStatus) {
+                formStatus.style.display = "none";
+                formStatus.className = "form-status";
+            }
+
+            const formData = new FormData(contactForm);
+
+            try {
+                const response = await fetch(contactForm.action, {
+                    method: "POST",
+                    body: formData,
+                    headers: {
+                        Accept: "application/json",
+                    },
+                });
+
+                if (response.ok) {
+                    if (formStatus) {
+                        formStatus.textContent = "Thank you! Your message has been sent successfully. I will get back to you soon.";
+                        formStatus.classList.add("success");
+                    }
+                    contactForm.reset();
+                } else {
+                    const errorData = await response.json();
+                    let errMsg = "Oops! There was a problem submitting your form.";
+                    if (errorData && errorData.errors) {
+                        errMsg = errorData.errors.map((err) => err.message).join(", ");
+                    }
+                    if (formStatus) {
+                        formStatus.textContent = errMsg;
+                        formStatus.classList.add("error");
+                    }
+                }
+            } catch (err) {
+                console.error("Form submission error:", err);
+                if (formStatus) {
+                    formStatus.textContent = "Network error. Please try again or email directly at nandinisisodiya1002@gmail.com";
+                    formStatus.classList.add("error");
+                }
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.querySelector(".btn-text").textContent = "Send Message";
+                if (formSpinner) formSpinner.style.display = "none";
+            }
+        });
+    }
+});
